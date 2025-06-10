@@ -1,0 +1,19 @@
+# ninja log v5
+58	3247	7668846979212826	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	e0d696f313920739
+18	2658	7668846974090808	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	eb803554ad9a6ce4
+35	3166	7668846978907672	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	952d993459f97aac
+26	3360	7668846980309307	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	23e15b86e9ac46bd
+46	3411	7668846981299535	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	ef4d49683fdd50d3
+1	3448	7668846981834727	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	3713eb19b2aaa66a
+10	3975	7668846987296221	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	2df8a6715dcbf387
+74	3451	7668846981874739	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	6054bffb57b65dc0
+3976	4221	7668846989807147	C:/Users/laugm/OneDrive/Escritorio/Github/SyncStudios/TFG-LGM/TFG-LGM/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/36w81312/obj/arm64-v8a/libgame.so	166264f8a12706c1
+65	9670	7710895569469226	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	23e15b86e9ac46bd
+48	9673	7710895569469226	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	ef4d49683fdd50d3
+10	9675	7710895569519545	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	eb803554ad9a6ce4
+56	9684	7710895569649878	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	6054bffb57b65dc0
+31	9704	7710895569894379	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	2df8a6715dcbf387
+74	9927	7710895572168136	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	952d993459f97aac
+83	10030	7710895573183632	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	e0d696f313920739
+38	10040	7710895573253987	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	3713eb19b2aaa66a
+10041	10363	7710895576546683	C:/Users/laugm/OneDrive/Escritorio/Github/SyncStudios/TFG-LGM/TFG-LGM/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/36w81312/obj/arm64-v8a/libgame.so	166264f8a12706c1

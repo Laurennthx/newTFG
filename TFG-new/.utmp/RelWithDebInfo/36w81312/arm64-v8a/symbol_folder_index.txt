@@ -1,0 +1,1 @@
+C:\Users\laugm\OneDrive\Escritorio\Github\SyncStudios\TFG-LGM\TFG-LGM\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\36w81312\obj\arm64-v8a

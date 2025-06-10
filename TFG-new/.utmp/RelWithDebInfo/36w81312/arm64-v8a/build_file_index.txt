@@ -1,0 +1,2 @@
+C:\Users\laugm\OneDrive\Escritorio\Github\SyncStudios\TFG-LGM\TFG-LGM\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\CMakeLists.txt
+C:\Users\laugm\OneDrive\Escritorio\Github\SyncStudios\TFG-LGM\TFG-LGM\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\GameActivity\CMakeLists.txt
