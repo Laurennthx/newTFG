@@ -13,11 +13,12 @@ public class AnalyticsManager : MonoBehaviour
     public TextMeshProUGUI incorrectCaughtText;
     public TextMeshProUGUI missedCorrectText;
 
-    string userID;
-    int sessionNumber;
-    string filePath;
-    int totalSpawned, correctSpawned, incorrectSpawned;
-    int correctCaught, incorrectCaught;
+    private string userID;
+    private int sessionNumber;
+    private string filePath;
+    private int totalSpawned, correctSpawned, incorrectSpawned;
+    private int correctCaught, incorrectCaught;
+    private bool analyticsSessionActive = false;
 
     void Awake()
     {
@@ -29,34 +30,52 @@ public class AnalyticsManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Inicia nueva sesión de analytics para el usuario dado.
+    /// </summary>
     public void StartSession(string rawUserID)
     {
+        if (analyticsSessionActive)
+        {
+            Debug.LogWarning("[AnalyticsManager] Ya hay una sesión activa.");
+            return;
+        }
+
+        // Normalizar ID
         string realID = string.IsNullOrWhiteSpace(rawUserID) ? "NOID" : rawUserID.Trim();
         realID = realID.Replace("/", "_").Replace("\\", "_");
         userID = realID;
 
+        // Contador de sesiones por usuario
         sessionNumber = PlayerPrefs.GetInt($"SessionCount_{userID}", 0) + 1;
         PlayerPrefs.SetInt($"SessionCount_{userID}", sessionNumber);
         PlayerPrefs.Save();
 
+        // Crear carpeta de usuario si no existe
         string basePath = Application.persistentDataPath;
         string folderPath = Path.Combine(basePath, userID);
         if (!Directory.Exists(folderPath))
             Directory.CreateDirectory(folderPath);
 
+        // Fichero de estadísticas
         string fileName = $"GravityStatistics_{userID}_{sessionNumber:D2}.txt";
         filePath = Path.Combine(folderPath, fileName);
 
+        // Cabecera inicial
         File.WriteAllText(filePath,
             $"DATA ANALYTICS - Gravity\n" +
             $"# Session {sessionNumber:D2}  User {userID}\n");
 
         totalSpawned = correctSpawned = incorrectSpawned = 0;
         correctCaught = incorrectCaught = 0;
+        analyticsSessionActive = true;
+
+        Debug.Log($"[AnalyticsManager] Sesión analytics iniciada: {filePath}");
     }
 
     public void RegisterSpawn(bool isCorrect)
     {
+        if (!analyticsSessionActive) return;
         totalSpawned++;
         if (isCorrect) correctSpawned++;
         else incorrectSpawned++;
@@ -64,20 +83,31 @@ public class AnalyticsManager : MonoBehaviour
 
     public void RegisterCaught(bool isCorrect)
     {
+        if (!analyticsSessionActive) return;
         if (isCorrect) correctCaught++;
         else incorrectCaught++;
     }
 
     public void LogReactionTime(string itemType, float reactionTime)
     {
+        if (!analyticsSessionActive) return;
         string formatted = reactionTime.ToString("F2", CultureInfo.InvariantCulture);
         string entry = $"RT | User {userID}, Obj {itemType}, {formatted}s\n";
         File.AppendAllText(filePath, entry);
         Debug.Log("[Analytics] " + entry);
     }
 
+    /// <summary>
+    /// Finaliza la sesión de analytics y escribe métricas finales.
+    /// </summary>
     public void EndSession()
     {
+        if (!analyticsSessionActive)
+        {
+            Debug.LogWarning("[AnalyticsManager] No hay sesión activa para finalizar.");
+            return;
+        }
+
         int totalCaught = correctCaught + incorrectCaught;
         int correctMissed = correctSpawned - correctCaught;
         int totalMissed = totalSpawned - totalCaught;
@@ -99,10 +129,26 @@ public class AnalyticsManager : MonoBehaviour
             sw.WriteLine($"Missed correct (%)  = {missedCorrectPct:F2}");
         }
 
-        Debug.Log("[Analytics] Sesión finalizada. Fichero: " + filePath);
-
+        // Actualizar UI final
         if (correctCaughtText != null) correctCaughtText.text = correctCaught.ToString();
         if (incorrectCaughtText != null) incorrectCaughtText.text = incorrectCaught.ToString();
         if (missedCorrectText != null) missedCorrectText.text = correctMissed.ToString();
+
+        Debug.Log("[Analytics] Sesión analytics finalizada. Fichero: " + filePath);
+        analyticsSessionActive = false;
+    }
+
+    /// <summary>
+    /// Detiene la sesión de analytics (alias de EndSession).
+    /// </summary>
+    public void StopSession()
+    {
+        EndSession();
+    }
+
+    void OnApplicationQuit()
+    {
+        if (analyticsSessionActive)
+            EndSession();
     }
 }

@@ -13298,7 +13298,7 @@ MonoBehaviour:
   movementSpeed: 1
   movementDirection: 0
   destinationPoint: {fileID: 1732982678}
-  numberOfRounds: 1
+  numberOfRounds: 5
   objectToActivate: {fileID: 920045716}
   objectToDeactivate: {fileID: 0}
   handLogger: {fileID: 918033585}
@@ -35516,7 +35516,7 @@ MonoBehaviour:
   movementSpeed: 1
   movementDirection: 1
   destinationPoint: {fileID: 1549447707}
-  numberOfRounds: 1
+  numberOfRounds: 5
   objectToActivate: {fileID: 0}
   objectToDeactivate: {fileID: 0}
   handLogger: {fileID: 0}

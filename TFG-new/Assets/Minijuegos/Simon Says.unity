@@ -23444,7 +23444,7 @@ MonoBehaviour:
     leftPose: {fileID: 11400000, guid: be246fe171312d64193db807d32a6140, type: 2}
     rightRenderer: {fileID: 6611485183736747511}
     leftRenderer: {fileID: 1729951814}
-    duration: 10
+    duration: 30
   - rightPose: {fileID: 11400000, guid: ce9f6dd08f022024784f10ce2f7ce67e, type: 2}
     leftPose: {fileID: 11400000, guid: 18b89158738748d46ab8a5a6c10095f3, type: 2}
     rightRenderer: {fileID: 1022520050}
@@ -23469,7 +23469,7 @@ MonoBehaviour:
     leftPose: {fileID: 11400000, guid: c9e82177aa246d74f813a0a04cd5e827, type: 2}
     rightRenderer: {fileID: 1991261171}
     leftRenderer: {fileID: 1315227779}
-    duration: 10
+    duration: 30
   - rightPose: {fileID: 11400000, guid: 36d5ea6d0954739418409c0df2220b13, type: 2}
     leftPose: {fileID: 11400000, guid: 18b89158738748d46ab8a5a6c10095f3, type: 2}
     rightRenderer: {fileID: 280052731}

@@ -1,35 +1,58 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Simple manager to switch between scenes "Gravity" and "Micrography".
-/// Attach to a persistent GameObject or call from UI buttons.
-/// </summary>
 public class SceneLoader : MonoBehaviour
 {
-    /// <summary>
-    /// Carga la escena llamada "Gravity".
-    /// </summary>
-    public void LoadGravity()
+    void OnEnable()
     {
-        SceneManager.LoadScene("Gravity");
+        // Suscribirse al evento para cada carga de escena
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    /// <summary>
-    /// Carga la escena llamada "Micrography".
-    /// </summary>
-    public void LoadMicrography()
+    void OnDisable()
     {
-        SceneManager.LoadScene("Micrography");
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    public void LoadLobby()
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        SceneManager.LoadScene("Lobby");
+        var sm = SessionManager.Instance;
+        if (sm == null) return;
+
+        // 1) Detener sesión si estaba activa
+        sm.OnButtonPausePressed();  // pone sessionStarted = false y detiene loggers :contentReference[oaicite:0]{index=0}
+
+        // 2) (Re)inicializar estado interno para poder arrancar de nuevo
+        sm.ResetSessionState();    // método a añadir en SessionManager, que haga sessionStarted = false
+
+        // 3) Reasignar referencias de esta escena:
+
+        // Teclado / campo de texto
+        var kb = FindObjectOfType<VRKeyboardController>();
+        if (kb != null)
+        {
+            sm.keyboardController = kb;                         // :contentReference[oaicite:1]{index=1}
+            sm.outputDisplay = kb.outputDisplay;            // si usas el display del teclado
+        }
+
+        // Loggers de mano
+        foreach (var h in FindObjectsOfType<HandDataLogger>())
+        {
+            if (h.rightHand) sm.handDataLoggerRight = h;
+            else sm.handDataLoggerLeft = h;
+        }
+
+        // Loggers de controlador
+        foreach (var c in FindObjectsOfType<ControllerDataLogger>())
+        {
+            if (c.rightController) sm.controllerLoggerRight = c;
+            else sm.controllerLoggerLeft = c;
+        }
     }
 
-    public void LoadSimonSays()
-    {
-        SceneManager.LoadScene("Simon Says");
-    }
+    // Métodos originales para cambiar de escena…
+    public void LoadGravity() => SceneManager.LoadScene("Gravity");
+    public void LoadMicrography() => SceneManager.LoadScene("Micrography");
+    public void LoadLobby() => SceneManager.LoadScene("Lobby");
+    public void LoadSimonSays() => SceneManager.LoadScene("Simon Says");
 }
