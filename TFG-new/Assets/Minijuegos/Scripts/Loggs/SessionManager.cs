@@ -1,7 +1,6 @@
 ﻿// SessionManager.cs
 using UnityEngine;
 using TMPro;
-using UnityEngine.SceneManagement;  // si cargas escenas desde aquí
 
 public class SessionManager : MonoBehaviour
 {
@@ -16,25 +15,19 @@ public class SessionManager : MonoBehaviour
     public HandDataLogger handDataLoggerLeft;
 
     [Header("Controller Loggers")]
-    [Tooltip("Logger para el controlador izquierdo (si se usa)")]
     public ControllerDataLogger controllerLoggerLeft;
-    [Tooltip("Logger para el controlador derecho (si se usa)")]
     public ControllerDataLogger controllerLoggerRight;
-
 
     [Header("Mini Juegos")]
     public string[] miniGameCodes = new string[3] { "01", "02", "03" };
     [Range(0, 2)]
     public int selectedGameIndex = 0;
 
-    // El ID actual (cargado de PlayerPrefs o puesto por el teclado)
     private string userID;
-
     private bool sessionStarted = false;
 
     void Awake()
     {
-        // Singleton + persistir entre escenas
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -43,38 +36,37 @@ public class SessionManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Cargar userID si estaba guardado
         if (PlayerPrefs.HasKey("UserID"))
             userID = PlayerPrefs.GetString("UserID");
     }
 
     /// <summary>
-    /// Vinculado al botón “Start”:
-    /// inicializa y arranca ambos loggers.
+    /// Llamado por el botón “Play”
+    /// Siempre reinicia los loggers para generar nuevos ficheros.
     /// </summary>
-    /// <summary>
-    /// Vinculado al botón “Start”:
-    /// inicializa y arranca ambos loggers y AnalyticsManager.
-    /// </summary>
-    public void OnStartButtonPressed()
+    public void OnButtonPlayPressed()
     {
+        // Si ya había logging activo, lo detenemos antes de arrancar de nuevo
         if (sessionStarted)
         {
-            Debug.LogWarning("[SessionManager] La sesión ya está iniciada.");
-            return;
+            Debug.Log("[SessionManager] Reiniciando logging para nueva sesión de juego...");
+            handDataLoggerRight?.StopLogging();
+            handDataLoggerLeft?.StopLogging();
+            controllerLoggerLeft?.StopLogging();
+            controllerLoggerRight?.StopLogging();
+            sessionStarted = false;
         }
 
-        // 1) Obtener/actualizar userID
+        // 1) ID jugador
         string inputID = keyboardController.inputField.text.Trim();
         userID = string.IsNullOrEmpty(inputID) ? userID : inputID;
         if (string.IsNullOrEmpty(userID))
             userID = "NOID";
 
-        // 2) Mostrar en pantalla
         if (outputDisplay != null)
             outputDisplay.text = $"ID jugador: {userID}";
 
-        // 3) Validar miniGameCodes
+        // 2) Código de juego
         if (miniGameCodes == null || miniGameCodes.Length < 1)
         {
             Debug.LogError("[SessionManager] miniGameCodes mal configurado.");
@@ -82,7 +74,7 @@ public class SessionManager : MonoBehaviour
         }
         string gameCode = miniGameCodes[Mathf.Clamp(selectedGameIndex, 0, miniGameCodes.Length - 1)];
 
-        // 4) Configurar y arrancar logs de mano derecha
+        // 3) Mano derecha
         if (handDataLoggerRight != null)
         {
             handDataLoggerRight.userID = userID;
@@ -92,7 +84,7 @@ public class SessionManager : MonoBehaviour
             handDataLoggerRight.StartLogging();
         }
 
-        // 5) Configurar y arrancar logs de mano izquierda
+        // 4) Mano izquierda
         if (handDataLoggerLeft != null)
         {
             handDataLoggerLeft.userID = userID;
@@ -102,15 +94,16 @@ public class SessionManager : MonoBehaviour
             handDataLoggerLeft.StartLogging();
         }
 
-        // 6) Iniciar AnalyticsManager (solo si existe en la escena)
+        // 5) Analytics
         if (AnalyticsManager.Instance != null)
             AnalyticsManager.Instance.StartSession(userID);
 
-        // Solo arrancará si en esta escena hay uno asignado.
+        // 6) Controladores
         if (controllerLoggerLeft != null)
         {
             controllerLoggerLeft.userID = userID;
             controllerLoggerLeft.gameCode = gameCode;
+            controllerLoggerLeft.rightController = false;
             controllerLoggerLeft.Initialize();
             controllerLoggerLeft.StartLogging();
         }
@@ -118,44 +111,41 @@ public class SessionManager : MonoBehaviour
         {
             controllerLoggerRight.userID = userID;
             controllerLoggerRight.gameCode = gameCode;
+            controllerLoggerRight.rightController = true;
             controllerLoggerRight.Initialize();
             controllerLoggerRight.StartLogging();
         }
 
-            // 7) Marcar sesión iniciada
-            sessionStarted = true;
+        sessionStarted = true;
         Debug.Log($"[SessionManager] Sesión iniciada → ID={userID}, Juego={gameCode}");
     }
 
-
     /// <summary>
-    /// Vinculado al botón “Stop”: detiene el logging.
+    /// Llamado por el botón “Pause”
+    /// Detiene todos los loggers y cierra sus archivos.
     /// </summary>
-    public void OnStopButtonPressed()
+    public void OnButtonPausePressed()
     {
         if (!sessionStarted)
         {
-            Debug.LogWarning("[SessionManager] No hay sesión iniciada.");
+            Debug.LogWarning("[SessionManager] No hay logging activo que detener.");
             return;
         }
 
         handDataLoggerRight?.StopLogging();
         handDataLoggerLeft?.StopLogging();
+        controllerLoggerLeft?.StopLogging();
+        controllerLoggerRight?.StopLogging();
+
         sessionStarted = false;
-        Debug.Log("[SessionManager] Sesión detenida.");
+        Debug.Log("[SessionManager] Sesión detenida y ficheros cerrados.");
     }
 
-    /// <summary>
-    /// Permite a VRKeyboardController actualizar el ID en memoria.
-    /// </summary>
     public void SetUserID(string id)
     {
         userID = id;
     }
 
-    /// <summary>
-    /// Obtener desde cualquier escena el ID actual.
-    /// </summary>
     public string GetUserID()
     {
         return userID;

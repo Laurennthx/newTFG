@@ -1,0 +1,5 @@
+C:/Users/laugm/OneDrive/Escritorio/Github/SyncStudios/newTFG/TFG-new/.utmp/RelWithDebInfo/2w2n6n11/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/laugm/OneDrive/Escritorio/Github/SyncStudios/newTFG/TFG-new/.utmp/RelWithDebInfo/2w2n6n11/arm64-v8a/CMakeFiles/rebuild_cache.dir
+C:/Users/laugm/OneDrive/Escritorio/Github/SyncStudios/newTFG/TFG-new/.utmp/RelWithDebInfo/2w2n6n11/arm64-v8a/GameActivity/CMakeFiles/game.dir
+C:/Users/laugm/OneDrive/Escritorio/Github/SyncStudios/newTFG/TFG-new/.utmp/RelWithDebInfo/2w2n6n11/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+C:/Users/laugm/OneDrive/Escritorio/Github/SyncStudios/newTFG/TFG-new/.utmp/RelWithDebInfo/2w2n6n11/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir

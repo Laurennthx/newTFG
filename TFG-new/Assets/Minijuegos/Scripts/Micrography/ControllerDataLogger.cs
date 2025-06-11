@@ -1,8 +1,7 @@
-﻿// Assets/Scripts/ControllerDataLogger.cs
+﻿// ControllerDataLogger.cs
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.XR;
@@ -11,12 +10,10 @@ using System.Globalization;
 public class ControllerDataLogger : MonoBehaviour
 {
     [Header("Sampling Settings")]
-    [Tooltip("Intervalo entre muestras en segundos (ej: 0.01–0.5).")]
     [Range(0.01f, 2f)]
     public float sampleInterval = 0.1f;
 
     [Header("Which Controller")]
-    [Tooltip("Marca true para el controlador derecho; false para el izquierdo.")]
     public bool rightController = true;
 
     [HideInInspector] public string userID;
@@ -30,7 +27,6 @@ public class ControllerDataLogger : MonoBehaviour
 
     void OnEnable()
     {
-        // Intentamos inicializar ahora y cada vez que llegue un nuevo dispositivo
         TryInitializeDevice();
         InputDevices.deviceConnected += OnDeviceConnected;
     }
@@ -38,77 +34,66 @@ public class ControllerDataLogger : MonoBehaviour
     void OnDisable()
     {
         InputDevices.deviceConnected -= OnDeviceConnected;
+        StopLogging();
     }
 
-    private void OnDeviceConnected(InputDevice connectedDevice)
+    private void OnDeviceConnected(InputDevice d)
     {
-        // Si aún no tenemos uno, reintenta
         if (!device.isValid)
             TryInitializeDevice();
     }
 
-    /// <summary>
-    /// Busca el controlador izquierdo/derecho y lo asigna a `device`.
-    /// </summary>
     private void TryInitializeDevice()
     {
         var desired = InputDeviceCharacteristics.Controller
-                    | (rightController
-                        ? InputDeviceCharacteristics.Right
-                        : InputDeviceCharacteristics.Left);
+                    | (rightController ? InputDeviceCharacteristics.Right : InputDeviceCharacteristics.Left);
 
         var devices = new List<InputDevice>();
         InputDevices.GetDevicesWithCharacteristics(desired, devices);
 
         if (devices.Count > 0)
-        {
             device = devices[0];
-            Debug.Log($"[ControllerDataLogger] Dispositivo encontrado: {device.name}");
-        }
         else
-        {
-            Debug.LogWarning($"[ControllerDataLogger] No encontrado {(rightController ? "Controlador Derecho" : "Controlador Izquierdo")}");
-        }
+            Debug.LogWarning($"[ControllerDataLogger] No se encontró {(rightController ? "controlador derecho" : "controlador izquierdo")}.");
     }
 
+    /// <summary>
+    /// Inicializa y abre un nuevo fichero:
+    /// CONTROLLER_LOG_{userID}_{gameCode}_{CR|CL}_{nSesion:D2}.txt
+    /// </summary>
     public void Initialize()
     {
-        // Sanitizar userID
         userID = string.IsNullOrWhiteSpace(userID) ? "NOID" : userID.Trim().Replace("/", "_").Replace("\\", "_");
+        string ctrlCode = rightController ? "CR" : "CL";
 
-        // Carpeta usuario
-        string folder = Path.Combine(Application.persistentDataPath, userID);
-        if (!Directory.Exists(folder))
-            Directory.CreateDirectory(folder);
+        string basePath = Application.persistentDataPath;
+        string folderPath = Path.Combine(basePath, userID);
+        if (!Directory.Exists(folderPath))
+            Directory.CreateDirectory(folderPath);
 
-        // Prefijo y recuento de sesiones
-        string handCode = rightController ? "CR" : "CL";
-        string prefix = $"ControllerLog_{userID}_{gameCode}_{handCode}_";
-        var files = Directory.GetFiles(folder, prefix + "*.txt");
-        sessionNumber = files.Length + 1;
+        string filePrefix = $"CONTROLLER_LOG_{userID}_{gameCode}_{ctrlCode}_";
+        string[] existing = Directory.GetFiles(folderPath, filePrefix + "*.txt");
+        sessionNumber = existing.Length + 1;
 
-        string fileName = $"{prefix}{sessionNumber:D2}.txt";
-        string fullPath = Path.Combine(folder, fileName);
+        string fileName = $"{filePrefix}{sessionNumber:D2}.txt";
+        string fullPath = Path.Combine(folderPath, fileName);
+
         writer = new StreamWriter(fullPath, false, Encoding.UTF8);
-        Debug.Log($"[ControllerDataLogger] Creando log: {fullPath}");
+        Debug.Log($"[ControllerDataLogger] Fichero creado: {fullPath}");
 
-        // Cabecera
-        var hdr = new StringBuilder("timestamp,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,rot_w");
-        hdr.Append(",vel_x,vel_y,vel_z,angVel_x,angVel_y,angVel_z");
-        hdr.Append(",trigger,grip,primaryButton,secondaryButton,2DAxisX,2DAxisY,2DAxisClick,2DAxisTouch");
-        writer.WriteLine(hdr.ToString());
+        var header = new StringBuilder("timestamp,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,rot_w");
+        header.Append(",vel_x,vel_y,vel_z,angVel_x,angVel_y,angVel_z");
+        header.Append(",trigger,grip,primaryButton,secondaryButton,2DAxisX,2DAxisY,2DAxisClick,2DAxisTouch");
+        writer.WriteLine(header.ToString());
         writer.Flush();
     }
 
     public void StartLogging()
     {
-        // Si todavía no detectamos el controlador, reinténtalo
-        if (!device.isValid)
-            TryInitializeDevice();
-
+        if (!device.isValid) TryInitializeDevice();
         if (!device.isValid)
         {
-            Debug.LogError("[ControllerDataLogger] No se puede empezar: dispositivo inválido.");
+            Debug.LogError("[ControllerDataLogger] Dispositivo inválido.");
             return;
         }
         if (writer == null)
@@ -119,19 +104,23 @@ public class ControllerDataLogger : MonoBehaviour
 
         isLogging = true;
         nextSampleTime = Time.time;
-        Debug.Log($"[ControllerDataLogger] ▶ StartLogging (Hand={(rightController ? "D" : "I")}, Session={sessionNumber})");
+        Debug.Log($"[ControllerDataLogger] ▶ StartLogging (Controlador {(rightController ? "D" : "I")}, Sesión={sessionNumber:D2})");
+    }
+
+    public void StopLogging()
+    {
+        if (!isLogging) return;
+
+        isLogging = false;
+        writer?.Flush();
+        writer?.Close();
+        writer = null;
+        Debug.Log("[ControllerDataLogger] ■ StopLogging() y fichero cerrado.");
     }
 
     void Update()
     {
         if (!isLogging) return;
-
-        // Si perdemos el dispositivo en mitad de la sesión, intentamos recuperarlo
-        if (!device.isValid)
-        {
-            TryInitializeDevice();
-            if (!device.isValid) return;
-        }
 
         if (Time.time >= nextSampleTime)
         {
@@ -148,7 +137,6 @@ public class ControllerDataLogger : MonoBehaviour
         device.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rot);
         device.TryGetFeatureValue(CommonUsages.deviceVelocity, out Vector3 vel);
         device.TryGetFeatureValue(CommonUsages.deviceAngularVelocity, out Vector3 angVel);
-
         device.TryGetFeatureValue(CommonUsages.trigger, out float trigger);
         device.TryGetFeatureValue(CommonUsages.grip, out float grip);
         device.TryGetFeatureValue(CommonUsages.primaryButton, out bool btnA);
@@ -157,45 +145,21 @@ public class ControllerDataLogger : MonoBehaviour
         device.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool axisClick);
         device.TryGetFeatureValue(CommonUsages.primary2DAxisTouch, out bool axisTouch);
 
-        string line = string.Join(",",
-            ts,
-            pos.x.ToString("F4", CultureInfo.InvariantCulture),
-            pos.y.ToString("F4", CultureInfo.InvariantCulture),
-            pos.z.ToString("F4", CultureInfo.InvariantCulture),
-            rot.x.ToString("F4", CultureInfo.InvariantCulture),
-            rot.y.ToString("F4", CultureInfo.InvariantCulture),
-            rot.z.ToString("F4", CultureInfo.InvariantCulture),
-            rot.w.ToString("F4", CultureInfo.InvariantCulture),
-            vel.x.ToString("F4", CultureInfo.InvariantCulture),
-            vel.y.ToString("F4", CultureInfo.InvariantCulture),
-            vel.z.ToString("F4", CultureInfo.InvariantCulture),
-            angVel.x.ToString("F4", CultureInfo.InvariantCulture),
-            angVel.y.ToString("F4", CultureInfo.InvariantCulture),
-            angVel.z.ToString("F4", CultureInfo.InvariantCulture),
-            trigger.ToString("F3", CultureInfo.InvariantCulture),
-            grip.ToString("F3", CultureInfo.InvariantCulture),
-            btnA ? "1" : "0",
-            btnB ? "1" : "0",
-            axis2D.x.ToString("F4", CultureInfo.InvariantCulture),
-            axis2D.y.ToString("F4", CultureInfo.InvariantCulture),
-            axisClick ? "1" : "0",
-            axisTouch ? "1" : "0"
-        );
+        var line = new StringBuilder(ts);
+        line.AppendFormat(CultureInfo.InvariantCulture, ",{0:F4},{1:F4},{2:F4}", pos.x, pos.y, pos.z);
+        line.AppendFormat(CultureInfo.InvariantCulture, ",{0:F4},{1:F4},{2:F4},{3:F4}", rot.x, rot.y, rot.z, rot.w);
+        line.AppendFormat(CultureInfo.InvariantCulture, ",{0:F4},{1:F4},{2:F4}", vel.x, vel.y, vel.z);
+        line.AppendFormat(CultureInfo.InvariantCulture, ",{0:F4},{1:F4},{2:F4}", angVel.x, angVel.y, angVel.z);
+        line.AppendFormat(CultureInfo.InvariantCulture, ",{0:F3},{1:F3}", trigger, grip);
+        line.Append($",{(btnA ? 1 : 0)},{(btnB ? 1 : 0)}");
+        line.AppendFormat(CultureInfo.InvariantCulture, ",{0:F4},{1:F4},{2},{3}", axis2D.x, axis2D.y, axisClick ? 1 : 0, axisTouch ? 1 : 0);
 
-        writer.WriteLine(line);
+        writer.WriteLine(line.ToString());
         writer.Flush();
-    }
-
-    public void StopLogging()
-    {
-        if (!isLogging) return;
-        isLogging = false;
-        writer?.Flush();
-        Debug.Log($"[ControllerDataLogger] ■ StopLogging()");
     }
 
     void OnDestroy()
     {
-        writer?.Close();
+        StopLogging();
     }
 }

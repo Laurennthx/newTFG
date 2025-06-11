@@ -17,12 +17,11 @@ public class VRKeyboardController : MonoBehaviour
 
     void Start()
     {
-        // 1) Si ya hay un UserID guardado, lo cargamos…
         if (PlayerPrefs.HasKey("UserID"))
         {
             currentText = PlayerPrefs.GetString("UserID");
             UpdateInputField();
-            UpdateOutputDisplay();    // <— aquí le decimos que también rellene los outputDisplay
+            UpdateOutputDisplay();
         }
     }
 
@@ -51,15 +50,11 @@ public class VRKeyboardController : MonoBehaviour
 
     private void Submit()
     {
-        // 1) Mostrar en pantalla y guardar
         UpdateOutputDisplay();
-
         PlayerPrefs.SetString("UserID", currentText);
         PlayerPrefs.Save();
-
         if (SessionManager.Instance != null)
             SessionManager.Instance.SetUserID(currentText);
-
         // …carga de escena, etc.
     }
 
