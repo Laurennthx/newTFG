@@ -8,7 +8,12 @@ public class SessionManager : MonoBehaviour
 
     [Header("Referencias al Teclado y Texto")]
     public VRKeyboardController keyboardController;
-    public TextMeshProUGUI outputDisplay;
+    [SerializeField] private TextMeshProUGUI outputDisplay;
+
+    [Header("Mini Juegos (códigos)")]
+    public string[] miniGameCodes = new string[3] { "01", "02", "03" };
+    [Range(0, 2)]
+    public int selectedGameIndex = 0;  // Ahora puedes elegir manualmente en el Inspector
 
     [Header("HandDataLogger por Mano")]
     public HandDataLogger handDataLoggerRight;
@@ -17,11 +22,6 @@ public class SessionManager : MonoBehaviour
     [Header("Controller Loggers")]
     public ControllerDataLogger controllerLoggerLeft;
     public ControllerDataLogger controllerLoggerRight;
-
-    [Header("Mini Juegos")]
-    public string[] miniGameCodes = new string[3] { "01", "02", "03" };
-    [Range(0, 2)]
-    public int selectedGameIndex = 0;
 
     private string userID;
     private bool sessionStarted = false;
@@ -42,14 +42,13 @@ public class SessionManager : MonoBehaviour
 
     /// <summary>
     /// Llamado por el botón “Play”
-    /// Siempre reinicia los loggers para generar nuevos ficheros.
+    /// Siempre reinicia (si ya había) y arranca nuevos logs con el código manual seleccionado.
     /// </summary>
     public void OnButtonPlayPressed()
     {
-        // Si ya había logging activo, lo detenemos antes de arrancar de nuevo
+        // Si ya había sesión activa, la reiniciamos
         if (sessionStarted)
         {
-            Debug.Log("[SessionManager] Reiniciando logging para nueva sesión de juego...");
             handDataLoggerRight?.StopLogging();
             handDataLoggerLeft?.StopLogging();
             controllerLoggerLeft?.StopLogging();
@@ -63,61 +62,47 @@ public class SessionManager : MonoBehaviour
         if (string.IsNullOrEmpty(userID))
             userID = "NOID";
 
+        // 2) Mostrar ID en pantalla (si está asignado)
         if (outputDisplay != null)
-            outputDisplay.text = $"ID jugador: {userID}";
+            outputDisplay.text = "ID jugador: " + userID;
 
-        // 2) Código de juego
-        if (miniGameCodes == null || miniGameCodes.Length < 1)
-        {
-            Debug.LogError("[SessionManager] miniGameCodes mal configurado.");
-            return;
-        }
-        string gameCode = miniGameCodes[Mathf.Clamp(selectedGameIndex, 0, miniGameCodes.Length - 1)];
+        // 3) Código de juego según selección del Inspector
+        int idx = Mathf.Clamp(selectedGameIndex, 0, miniGameCodes.Length - 1);
+        string gameCode = miniGameCodes[idx];
 
-        // 3) Mano derecha
-        if (handDataLoggerRight != null)
-        {
-            handDataLoggerRight.userID = userID;
-            handDataLoggerRight.gameCode = gameCode;
-            handDataLoggerRight.rightHand = true;
-            handDataLoggerRight.Initialize();
-            handDataLoggerRight.StartLogging();
-        }
+        // 4) Inicializar y arrancar logs de mano derecha
+        handDataLoggerRight.userID = userID;
+        handDataLoggerRight.gameCode = gameCode;
+        handDataLoggerRight.rightHand = true;
+        handDataLoggerRight.Initialize();
+        handDataLoggerRight.StartLogging();
 
-        // 4) Mano izquierda
-        if (handDataLoggerLeft != null)
-        {
-            handDataLoggerLeft.userID = userID;
-            handDataLoggerLeft.gameCode = gameCode;
-            handDataLoggerLeft.rightHand = false;
-            handDataLoggerLeft.Initialize();
-            handDataLoggerLeft.StartLogging();
-        }
+        // 5) Inicializar y arrancar logs de mano izquierda
+        handDataLoggerLeft.userID = userID;
+        handDataLoggerLeft.gameCode = gameCode;
+        handDataLoggerLeft.rightHand = false;
+        handDataLoggerLeft.Initialize();
+        handDataLoggerLeft.StartLogging();
 
-        // 5) Analytics
-        if (AnalyticsManager.Instance != null)
-            AnalyticsManager.Instance.StartSession(userID);
+        // 6) Iniciar sesión de Analytics
+        AnalyticsManager.Instance?.StartSession(userID);
 
-        // 6) Controladores
-        if (controllerLoggerLeft != null)
-        {
-            controllerLoggerLeft.userID = userID;
-            controllerLoggerLeft.gameCode = gameCode;
-            controllerLoggerLeft.rightController = false;
-            controllerLoggerLeft.Initialize();
-            controllerLoggerLeft.StartLogging();
-        }
-        if (controllerLoggerRight != null)
-        {
-            controllerLoggerRight.userID = userID;
-            controllerLoggerRight.gameCode = gameCode;
-            controllerLoggerRight.rightController = true;
-            controllerLoggerRight.Initialize();
-            controllerLoggerRight.StartLogging();
-        }
+        // 7) Inicializar y arrancar logs de controlador izquierdo
+        controllerLoggerLeft.userID = userID;
+        controllerLoggerLeft.gameCode = gameCode;
+        controllerLoggerLeft.rightController = false;
+        controllerLoggerLeft.Initialize();
+        controllerLoggerLeft.StartLogging();
+
+        // 8) Inicializar y arrancar logs de controlador derecho
+        controllerLoggerRight.userID = userID;
+        controllerLoggerRight.gameCode = gameCode;
+        controllerLoggerRight.rightController = true;
+        controllerLoggerRight.Initialize();
+        controllerLoggerRight.StartLogging();
 
         sessionStarted = true;
-        Debug.Log($"[SessionManager] Sesión iniciada → ID={userID}, Juego={gameCode}");
+        Debug.Log($"[SessionManager] Sesión PLAY → ID={userID}, Juego={gameCode}");
     }
 
     /// <summary>
@@ -128,26 +113,23 @@ public class SessionManager : MonoBehaviour
     {
         if (!sessionStarted)
         {
-            Debug.LogWarning("[SessionManager] No hay logging activo que detener.");
+            Debug.LogWarning("[SessionManager] No hay sesión activa que detener.");
             return;
         }
 
-        handDataLoggerRight?.StopLogging();
-        handDataLoggerLeft?.StopLogging();
-        controllerLoggerLeft?.StopLogging();
-        controllerLoggerRight?.StopLogging();
+        handDataLoggerRight.StopLogging();
+        handDataLoggerLeft.StopLogging();
+        controllerLoggerLeft.StopLogging();
+        controllerLoggerRight.StopLogging();
 
         sessionStarted = false;
-        Debug.Log("[SessionManager] Sesión detenida y ficheros cerrados.");
+        Debug.Log("[SessionManager] Sesión PAUSE → ficheros cerrados.");
     }
 
-    public void SetUserID(string id)
-    {
-        userID = id;
-    }
+    /// <summary>
+    /// Permite cambiar el ID de usuario desde código si es necesario.
+    /// </summary>
+    public void SetUserID(string id) => userID = id;
 
-    public string GetUserID()
-    {
-        return userID;
-    }
+    public string GetUserID() => userID;
 }

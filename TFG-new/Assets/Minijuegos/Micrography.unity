@@ -7234,15 +7234,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyboardController: {fileID: 289968042}
   outputDisplay: {fileID: 0}
-  handDataLoggerRight: {fileID: 0}
-  handDataLoggerLeft: {fileID: 0}
-  controllerLoggerLeft: {fileID: 925929663}
-  controllerLoggerRight: {fileID: 918033587}
   miniGameCodes:
   - 01
   - 02
   - 03
   selectedGameIndex: 1
+  handDataLoggerRight: {fileID: 1661862369}
+  handDataLoggerLeft: {fileID: 1100312092}
+  controllerLoggerLeft: {fileID: 925929663}
+  controllerLoggerRight: {fileID: 918033587}
 --- !u!4 &395115914
 Transform:
   m_ObjectHideFlags: 0
@@ -18908,6 +18908,55 @@ Transform:
   - {fileID: 1599725619}
   m_Father: {fileID: 882720569}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1100312091
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1100312093}
+  - component: {fileID: 1100312092}
+  m_Layer: 0
+  m_Name: '@HandLoggerLeft'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1100312092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100312091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c20991acf41ed1a489ae89dc395aef83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sampleInterval: 0.1
+  rightHand: 0
+  jointsToLog: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a000000
+  userID: 
+  gameCode: 
+--- !u!4 &1100312093
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100312091}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1104916534
 GameObject:
   m_ObjectHideFlags: 0
@@ -28904,6 +28953,55 @@ Transform:
   - {fileID: 250393140}
   - {fileID: 1057427113}
   - {fileID: 1783572214}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1661862368
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1661862370}
+  - component: {fileID: 1661862369}
+  m_Layer: 0
+  m_Name: '@HandLoggerRight'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1661862369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661862368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c20991acf41ed1a489ae89dc395aef83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sampleInterval: 0.1
+  rightHand: 1
+  jointsToLog: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a000000
+  userID: 
+  gameCode: 
+--- !u!4 &1661862370
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661862368}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1669949394
@@ -39111,6 +39209,8 @@ SceneRoots:
   - {fileID: 289968041}
   - {fileID: 918033586}
   - {fileID: 925929664}
+  - {fileID: 1100312093}
+  - {fileID: 1661862370}
   - {fileID: 395115914}
   - {fileID: 1492978039}
   - {fileID: 2779669268269126897}

@@ -287,6 +287,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4560699}
   m_CullTransparentMesh: 1
+--- !u!1 &10368797
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 10368799}
+  - component: {fileID: 10368798}
+  m_Layer: 0
+  m_Name: '@ControllerLogger_LEFT'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &10368798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10368797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caf22e1492798b24b89bca6142bdd52b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sampleInterval: 0.1
+  rightController: 0
+  userID: 
+  gameCode: 
+--- !u!4 &10368799
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10368797}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &10841590
 GameObject:
   m_ObjectHideFlags: 0
@@ -4352,15 +4400,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyboardController: {fileID: 939260782969405333}
   outputDisplay: {fileID: 0}
-  handDataLoggerRight: {fileID: 918033585}
-  handDataLoggerLeft: {fileID: 641994056}
-  controllerLoggerLeft: {fileID: 0}
-  controllerLoggerRight: {fileID: 0}
   miniGameCodes:
   - 01
   - 02
   - 03
   selectedGameIndex: 0
+  handDataLoggerRight: {fileID: 918033585}
+  handDataLoggerLeft: {fileID: 641994056}
+  controllerLoggerLeft: {fileID: 10368798}
+  controllerLoggerRight: {fileID: 396211237}
 --- !u!4 &196639428
 Transform:
   m_ObjectHideFlags: 0
@@ -14289,6 +14337,54 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 546380358}
   m_SourcePrefab: {fileID: 100100000, guid: c6984c48aed9a154294088f4265d8478, type: 3}
+--- !u!1 &396211236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 396211238}
+  - component: {fileID: 396211237}
+  m_Layer: 0
+  m_Name: '@ControllerLogger_RIGHT'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &396211237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396211236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caf22e1492798b24b89bca6142bdd52b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sampleInterval: 0.1
+  rightController: 1
+  userID: 
+  gameCode: 
+--- !u!4 &396211238
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396211236}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &396513079
 GameObject:
   m_ObjectHideFlags: 0
@@ -35102,7 +35198,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 196639427}
         m_TargetAssemblyTypeName: SessionManager, Assembly-CSharp
-        m_MethodName: OnPauseButtonPressed
+        m_MethodName: OnButtonPausePressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -52152,7 +52248,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 196639427}
         m_TargetAssemblyTypeName: SessionManager, Assembly-CSharp
-        m_MethodName: OnStartButtonPressed
+        m_MethodName: OnButtonPlayPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -60892,6 +60988,8 @@ SceneRoots:
   - {fileID: 641994057}
   - {fileID: 123631894}
   - {fileID: 1436532188}
+  - {fileID: 10368799}
+  - {fileID: 396211238}
   - {fileID: 1492978039}
   - {fileID: 2779669268269126897}
   - {fileID: 864996743}
