@@ -46,63 +46,70 @@ public class SessionManager : MonoBehaviour
     /// </summary>
     public void OnButtonPlayPressed()
     {
-        // Si ya había sesión activa, la reiniciamos
-        if (sessionStarted)
+        // 0) Leemos el ID nuevo que haya tecleado el jugador
+        string inputID = keyboardController.inputField.text.Trim();
+
+        // 1) Si el jugador ha puesto un ID distinto al anterior,
+        //    reiniciamos el flag para poder arrancar de nuevo
+        if (!string.IsNullOrEmpty(inputID) && inputID != userID)
         {
-            handDataLoggerRight?.StopLogging();
-            handDataLoggerLeft?.StopLogging();
-            controllerLoggerLeft?.StopLogging();
-            controllerLoggerRight?.StopLogging();
             sessionStarted = false;
         }
 
-        // 1) ID jugador
-        string inputID = keyboardController.inputField.text.Trim();
-        userID = string.IsNullOrEmpty(inputID) ? userID : inputID;
+        // 2) Si ya está iniciada la sesión para este mismo ID, no hacemos nada
+        if (sessionStarted)
+        {
+            Debug.LogWarning("[SessionManager] La sesión ya está iniciada con este ID.");
+            return;
+        }
+
+        // 3) Asignamos el ID actualizado (o mantenemos el anterior si no escribe nada)
+        if (!string.IsNullOrEmpty(inputID))
+            userID = inputID;
         if (string.IsNullOrEmpty(userID))
             userID = "NOID";
 
-        // 2) Mostrar ID en pantalla (si está asignado)
+        // 4) Mostramos el ID en pantalla
         if (outputDisplay != null)
-            outputDisplay.text = "ID jugador: " + userID;
+            outputDisplay.text = $"ID jugador: {userID}";
 
-        // 3) Código de juego según selección del Inspector
-        int idx = Mathf.Clamp(selectedGameIndex, 0, miniGameCodes.Length - 1);
-        string gameCode = miniGameCodes[idx];
+        // 5) Obtenemos el código de mini-juego actual
+        if (miniGameCodes == null || miniGameCodes.Length == 0)
+        {
+            Debug.LogError("[SessionManager] miniGameCodes mal configurado.");
+            return;
+        }
+        string gameCode = miniGameCodes[
+            Mathf.Clamp(selectedGameIndex, 0, miniGameCodes.Length - 1)
+        ];
 
-        // 4) Inicializar y arrancar logs de mano derecha
-        handDataLoggerRight.userID = userID;
-        handDataLoggerRight.gameCode = gameCode;
-        handDataLoggerRight.rightHand = true;
-        handDataLoggerRight.Initialize();
-        handDataLoggerRight.StartLogging();
+        // 6) Configuramos y arrancamos el log de la mano derecha (si existe)
+        if (handDataLoggerRight != null)
+        {
+            handDataLoggerRight.userID = userID;
+            handDataLoggerRight.gameCode = gameCode;
+            handDataLoggerRight.rightHand = true;
+            handDataLoggerRight.Initialize();
+            handDataLoggerRight.StartLogging();
+        }
 
-        // 5) Inicializar y arrancar logs de mano izquierda
-        handDataLoggerLeft.userID = userID;
-        handDataLoggerLeft.gameCode = gameCode;
-        handDataLoggerLeft.rightHand = false;
-        handDataLoggerLeft.Initialize();
-        handDataLoggerLeft.StartLogging();
+        // 7) Configuramos y arrancamos el log de la mano izquierda (si existe)
+        if (handDataLoggerLeft != null)
+        {
+            handDataLoggerLeft.userID = userID;
+            handDataLoggerLeft.gameCode = gameCode;
+            handDataLoggerLeft.rightHand = false;
+            handDataLoggerLeft.Initialize();
+            handDataLoggerLeft.StartLogging();
+        }
 
-        // 6) Iniciar sesión de Analytics
-        AnalyticsManager.Instance?.StartSession(userID);
+        // 8) Arrancamos AnalyticsManager con este nuevo ID (si existe)
+        if (AnalyticsManager.Instance != null)
+            AnalyticsManager.Instance.StartSession(userID);
 
-        // 7) Inicializar y arrancar logs de controlador izquierdo
-        controllerLoggerLeft.userID = userID;
-        controllerLoggerLeft.gameCode = gameCode;
-        controllerLoggerLeft.rightController = false;
-        controllerLoggerLeft.Initialize();
-        controllerLoggerLeft.StartLogging();
-
-        // 8) Inicializar y arrancar logs de controlador derecho
-        controllerLoggerRight.userID = userID;
-        controllerLoggerRight.gameCode = gameCode;
-        controllerLoggerRight.rightController = true;
-        controllerLoggerRight.Initialize();
-        controllerLoggerRight.StartLogging();
-
+        // 9) Finalmente, marcamos que la sesión está en marcha
         sessionStarted = true;
-        Debug.Log($"[SessionManager] Sesión PLAY → ID={userID}, Juego={gameCode}");
+        Debug.Log($"[SessionManager] Sesión iniciada → ID={userID}, Juego={gameCode}");
     }
 
     /// <summary>
