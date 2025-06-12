@@ -91,7 +91,7 @@ public class SimonSaysStatistics : MonoBehaviour
         }
 
         // ——— Precisión total (ignorando índices 2 y 7) ———
-        int[] ignore = { 2, 7 };
+        int[] ignore = { 0, 2, 7 };
         float totalMatched = 0f, totalTime = 0f;
 
         for (int i = 0; i < comboMatchedTimes.Length; i++)
