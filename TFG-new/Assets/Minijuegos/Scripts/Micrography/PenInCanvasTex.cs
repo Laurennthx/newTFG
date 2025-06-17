@@ -78,11 +78,7 @@ public class PenInCanvasTex : MonoBehaviour
 
     void Update()
     {
-        if (!grabInteractable.isSelected)
-        {
-            currentLine = null;
-            return;
-        }
+        
         if (isTouchingCanvas && drawAction.action.ReadValue<float>() > 0.1f)
             DrawStroke();
         else
@@ -184,13 +180,6 @@ public class PenInCanvasTex : MonoBehaviour
             Debug.Log("[Pen] Raycast NO hit");
         }
     }
-
-
-
-
-
-
-
 
 
 

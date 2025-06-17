@@ -134,7 +134,7 @@ public class CanvasSessionManager : MonoBehaviour
         if (currentPatternIndex < scoreTexts.Length && scoreTexts[currentPatternIndex] != null)
             scoreTexts[currentPatternIndex].text = $"{scorePct:0.0}%";
 
-        if (penTool != null) penTool.SetActive(false);
+        //if (penTool != null) penTool.SetActive(false);
 
         yield return null;
         BeginNextPattern();
